@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_macros.html" import entry, ad_slot %}
+{% block title %}{{ it.title }} — {{ site.name }}{% endblock %}
+{% block description %}{{ (it.body or it.title)[:300] }}{% endblock %}
+{% block og %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ it.title }}">
+<meta property="og:description" content="{{ (it.body or (it.src_name ~ ': ' ~ it.title))[:300] }}">
+{% if site_url %}<meta property="og:url" content="{{ canonical }}">
+<meta property="og:image" content="{{ og_image }}">{% endif %}
+<meta property="article:published_time" content="{{ it.iso }}">
+{% endblock %}
+{% block content %}
+<article class="story" style="--c: {{ it.src_color }}">
+  <p class="story-back"><a href="{{ root }}index.html">Bütün xəbərlər</a></p>
+  <p class="story-meta">
+    <a class="src" href="{{ root }}menbe/{{ it.source }}.html">{{ it.src_name }}</a>
+    {% if it.category %}<span class="cat">{{ it.category }}</span>{% endif %}
+    <time datetime="{{ it.iso }}">{{ it.when }}</time>
+  </p>
+  <h1 class="story-title">{{ it.title }}</h1>
+  {% if it.body %}
+  <p class="story-lede">{{ it.body }}</p>
+  <p class="story-note">{% if it.summary %}Bu qısa xülasəni süni intellekt mənbədəki mətn əsasında hazırlayıb.{% else %}Qısa təsvir {{ it.src_name }} saytından götürülüb.{% endif %} Tam mətn və şəkillər mənbədədir.</p>
+  {% else %}
+  <p class="story-note">Bu xəbərin mətni {{ it.src_name }} saytındadır.</p>
+  {% endif %}
+  <p class="story-cta"><a class="button" href="{{ it.link }}" rel="noopener">{{ it.src_name }} saytında oxuyun</a></p>
+  {% set share = canonical if site_url else it.link %}
+  <p class="share">Paylaşın:
+    <a href="https://t.me/share/url?url={{ share|urlencode }}&text={{ it.title|urlencode }}" rel="noopener">Telegram</a>,
+    <a href="https://wa.me/?text={{ (it.title ~ ' ' ~ share)|urlencode }}" rel="noopener">WhatsApp</a>,
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ share|urlencode }}" rel="noopener">Facebook</a>
+  </p>
+</article>
+{{ ad_slot('lent', root, ads, extra="ad-inline-article") }}
+{% if related %}
+<section class="more">
+  <h2 class="more-head">{{ it.src_name }} saytından daha çox</h2>
+  <ol class="entries compact">{% for x in related %}{{ entry(x, root, show_teaser=false) }}{% endfor %}</ol>
+</section>
+{% endif %}
+{% if latest %}
+<section class="more">
+  <h2 class="more-head">Son xəbərlər</h2>
+  <ol class="entries compact">{% for x in latest %}{{ entry(x, root, show_teaser=false) }}{% endfor %}</ol>
+</section>
+{% endif %}
+{% endblock %}

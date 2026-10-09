@@ -1,0 +1,166 @@
+# ═══════════════════════════════════════════════════════════════════
+#  Saytın və botun ayarları.
+#  Bu faylı GitHub-da birbaşa redaktə edə bilərsiniz (qələm işarəsi).
+#  Gizli açarlar (tokenlər) BURAYA YAZILMIR — onlar GitHub Secrets-dədir.
+# ═══════════════════════════════════════════════════════════════════
+
+[site]
+name = "Gündəm"
+tagline = "Azərbaycan xəbərləri bir yerdə"
+# Boş qalsa, GitHub Pages ünvanı avtomatik götürülür.
+# Öz domeniniz olanda bura yazın, məs: "https://gundem.az"
+url = ""
+timezone = "Asia/Baku"
+per_page = 40          # bir səhifədə neçə xəbər
+max_pages = 15         # ana səhifədə neçə səhifə
+keep_items = 1500      # saytda ən çox neçə xəbər saxlansın
+
+# ─── Paylaşım qaydaları (bütün şəbəkələr üçün) ──────────────────────
+[publish]
+max_age_hours = 3      # bundan köhnə xəbər paylaşılmır
+hashtags = true
+# Yalnız bu sözlərdən birini daşıyan xəbərlər paylaşılsın (boş = hamısı)
+# Məsələn: include_keywords = ["futbol", "Qarabağ", "neft"]
+include_keywords = []
+# Bu sözləri daşıyan xəbərlər paylaşılmasın (saytda yenə görünür)
+exclude_keywords = []
+
+# Hər şəbəkə üçün:
+#   enabled              — true / false
+#   url                  — səhifənizin linki (saytın altında "Bizi izləyin" kimi görünür)
+#   max_per_run          — hər 30 dəqiqədə ən çox neçə post
+#   min_interval_minutes — iki post arasında ən az neçə dəqiqə keçsin
+
+[telegram]
+enabled = true
+url = ""               # məs: "https://t.me/gundem_xeber"
+max_per_run = 4
+min_interval_minutes = 0
+link_preview = false
+
+[facebook]
+enabled = true
+url = ""               # məs: "https://facebook.com/gundemxeber"
+max_per_run = 1
+min_interval_minutes = 60
+graph_version = "v26.0"
+
+[instagram]
+enabled = true
+url = ""               # məs: "https://instagram.com/gundemxeber"
+max_per_run = 1
+min_interval_minutes = 120
+
+[threads]
+enabled = true
+url = ""               # məs: "https://threads.net/@gundemxeber"
+max_per_run = 1
+min_interval_minutes = 60
+
+# ─── Qısa təsvir ─────────────────────────────────────────────────────
+[summary]
+# "auto"   — ANTHROPIC_API_KEY varsa süni intellekt xülasəsi, yoxdursa mənbənin öz qısa təsviri
+# "source" — həmişə mənbənin öz qısa təsviri
+mode = "auto"
+ai_model = "claude-haiku-5-5"
+# true: süni intellekt yalnız sosial şəbəkəyə gedən xəbərləri xülasə edir (xərc az olur)
+ai_only_for_social = true
+fetch_article_page = true
+
+# ─── Reklam yerləri ──────────────────────────────────────────────────
+# Dörd yer var:
+#   top   — yuxarıda, menyunun altında (bütün ekranlarda)
+#   left  — solda, xəbərlərin yanında (yalnız geniş ekranlarda)
+#   right — sağda, xəbərlərin yanında (yalnız geniş ekranlarda)
+#   lent  — telefon və planşetdə xəbərlərin arasında (yan sütunlar sığmayanda)
+#
+# Hər yerə 3 cür şey qoymaq olar:
+#   1) Öz banneriniz: şəkli GitHub-da static/reklam/ qovluğuna yükləyin və aşağıda yazın.
+#      Bir neçə banner yazsanız, hər açılışda təsadüfi biri göstərilir.
+#   2) Reklam şəbəkəsinin kodu (Google AdSense və s.): kodu html = """ ... """ içinə yapışdırın.
+#   3) Heç nə: "Reklamınız burada ola bilər" qutusu görünür (placeholder = false ilə gizlədin).
+
+[ads]
+enabled = true
+label = "Reklam"
+placeholder = true
+placeholder_text = "Reklamınız burada ola bilər"
+# Reklam üçün əlaqə — boş qutuya basanda açılır. Məs: "https://t.me/sizin_adiniz" və ya "mailto:reklam@sayt.az"
+contact_url = ""
+# Telefonda neçənci xəbərdən sonra reklam görünsün
+lent_after = 6
+# Reklam şəbəkəsinin bütün səhifələrə qoyulan kodu (məs. AdSense-in <script> sətri)
+head_html = ""
+# Reklam şəbəkəsinin tələb etdiyi ads.txt məzmunu (öz domeniniz olanda)
+ads_txt = ""
+
+[ads.top]
+width = 728
+height = 90
+banners = [
+  # { image = "static/reklam/ust.jpg", link = "https://reklamveren.az", alt = "Şirkətin adı" },
+]
+html = ""
+
+[ads.left]
+width = 160
+height = 600
+banners = [
+  # { image = "static/reklam/sol.jpg", link = "https://...", alt = "..." },
+]
+html = ""
+
+[ads.right]
+width = 300
+height = 600
+banners = [
+  # { image = "static/reklam/sag.jpg", link = "https://...", alt = "..." },
+]
+html = ""
+
+[ads.lent]
+width = 300
+height = 250
+banners = [
+  # { image = "static/reklam/lent.jpg", link = "https://...", alt = "..." },
+]
+html = ""
+
+[fetch]
+max_new_per_source = 15
+timeout_seconds = 15
+delay_seconds = 0.5
+
+# ─── Xəbər mənbələri ─────────────────────────────────────────────────
+# Yeni mənbə əlavə etmək üçün aşağıdakı bloku kopyalayın və RSS ünvanını yazın.
+# social = false — xəbərlər saytda görünür, amma sosial şəbəkələrə getmir.
+
+[[sources]]
+id = "apa"
+name = "APA"
+url = "https://apa.az/rss"
+color = "#1f5fbf"
+
+[[sources]]
+id = "report"
+name = "Report"
+url = "https://report.az/rss/"
+color = "#c8102e"
+
+[[sources]]
+id = "azertac"
+name = "AZƏRTAC"
+url = "https://azertag.az/rss"
+color = "#0b8457"
+
+[[sources]]
+id = "trend"
+name = "Trend"
+url = "https://az.trend.az/feeds/index.rss"
+color = "#e07b00"
+
+[[sources]]
+id = "qafqazinfo"
+name = "Qafqazinfo"
+url = "https://qafqazinfo.az/rss"
+color = "#7a3db8"

@@ -1,0 +1,78 @@
+{% from "_macros.html" import ad_slot %}
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ site.name }} — {{ site.tagline }}{% endblock %}</title>
+<meta name="description" content="{% block description %}{{ site.tagline }}{% endblock %}">
+{% if canonical and site_url %}<link rel="canonical" href="{{ canonical }}">{% endif %}
+<meta property="og:site_name" content="{{ site.name }}">
+<meta property="og:locale" content="az_AZ">
+{% block og %}
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ site.name }}">
+<meta property="og:description" content="{{ site.tagline }}">
+{% if site_url %}<meta property="og:image" content="{{ site_url }}/static/og.jpg">{% endif %}
+{% endblock %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0E2A47">
+<link rel="icon" href="{{ root }}static/favicon.svg" type="image/svg+xml">
+{% if site_url %}<link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="{{ site_url }}/feed.xml">{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ root }}static/style.css">
+{% if ads.head_html %}{{ ads.head_html|safe }}{% endif %}
+</head>
+<body{% if ads.rails %} class="with-rails" style="--left-w: {{ ads.slots.left.width if ads.slots.left.active else 0 }}px; --right-w: {{ ads.slots.right.width if ads.slots.right.active else 0 }}px"{% endif %}>
+<a class="skip" href="#esas">Əsas məzmuna keç</a>
+<header class="band">
+  <div class="wrap band-row">
+    <a class="mark" href="{{ root }}index.html">{{ site.name }}</a>
+    <p class="band-meta">
+      <span class="tagline">{{ site.tagline }}</span>
+      <span class="updated">Yenilənib: <time datetime="{{ updated_iso }}">{{ updated }}</time></span>
+    </p>
+  </div>
+</header>
+<nav class="sources" aria-label="Mənbələr">
+  <ul class="wrap">
+    <li><a href="{{ root }}index.html"{% if nav == 'home' %} aria-current="page"{% endif %}>Hamısı</a></li>
+    {% for s in sources %}
+    <li><a href="{{ root }}menbe/{{ s.id }}.html" style="--c: {{ s.color }}"{% if nav == s.id %} aria-current="page"{% endif %}><span class="dot" aria-hidden="true"></span>{{ s.name }}</a></li>
+    {% endfor %}
+    <li class="nav-search"><a href="{{ root }}axtar.html"{% if nav == 'search' %} aria-current="page"{% endif %}>Axtarış</a></li>
+  </ul>
+</nav>
+{% if ads.slots.top.active %}
+<div class="wrap ad-top-wrap">{{ ad_slot('top', root, ads) }}</div>
+{% endif %}
+<div class="page{% if ads.rails %} has-rails{% endif %}">
+  {% if ads.rails %}<aside class="rail rail-left" aria-label="{{ ads.label }}">{{ ad_slot('left', root, ads) }}</aside>{% endif %}
+  <main id="esas" class="wrap">
+  {% block content %}{% endblock %}
+  </main>
+  {% if ads.rails %}<aside class="rail rail-right" aria-label="{{ ads.label }}">{{ ad_slot('right', root, ads) }}</aside>{% endif %}
+</div>
+<footer class="foot">
+  <div class="wrap">
+    {% if socials %}
+    <p class="follow">Bizi izləyin:
+      {% for s in socials %}<a href="{{ s.url }}" rel="noopener">{{ s.label }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+    </p>
+    {% endif %}
+    <p>Xəbərlər {% for s in sources %}{{ s.name }}{% if not loop.last %}, {% endif %}{% endfor %} saytlarının açıq lentlərindən avtomatik toplanır. Hər xəbərin müəllif hüququ mənbəyə məxsusdur — tam mətni mənbənin saytında oxuyun.</p>
+    <p>© {{ year }} {{ site.name }}.{% if site_url %} <a href="{{ site_url }}/feed.xml">RSS lentinə abunə olun</a>.{% endif %}</p>
+  </div>
+</footer>
+<script>
+/* Bir yerdə bir neçə banner varsa, hər açılışda təsadüfi birini göstər */
+document.querySelectorAll(".ad-rotate").forEach(function (r) {
+  var a = r.children; if (a.length < 2) return;
+  var k = Math.floor(Math.random() * a.length);
+  for (var i = 0; i < a.length; i++) a[i].hidden = i !== k;
+});
+</script>
+</body>
+</html>

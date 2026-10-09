@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Səhifə tapılmadı — {{ site.name }}{% endblock %}
+{% block content %}
+<div class="empty">
+  <h1>Bu səhifə tapılmadı</h1>
+  <p>Xəbər köhnəldiyi üçün saytdan çıxarılmış ola bilər. Son xəbərlər ana səhifədədir.</p>
+  <p><a class="button" href="{{ root }}index.html">Ana səhifəyə qayıdın</a></p>
+</div>
+{% endblock %}

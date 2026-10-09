@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Axtarış — {{ site.name }}{% endblock %}
+{% block content %}
+<h1 class="page-head">Xəbər axtarışı</h1>
+<form class="search" role="search" onsubmit="return false">
+  <label for="q">Başlıqda axtarın</label>
+  <input id="q" type="search" autocomplete="off" placeholder="məsələn: neft, Qarabağ, futbol" autofocus>
+</form>
+<p class="search-status" id="status" aria-live="polite">Axtarmaq üçün ən azı 2 hərf yazın.</p>
+<ol class="entries compact" id="results"></ol>
+<script src="{{ root }}static/axtar.js" defer></script>
+{% endblock %}

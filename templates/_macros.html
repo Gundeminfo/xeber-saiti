@@ -1,0 +1,50 @@
+{% macro ad_slot(name, root, ads, tag="div", extra="") %}
+{% set s = ads.slots[name] %}
+{% if s.active %}
+<{{ tag }} class="ad ad-{{ name }} {{ extra }}" style="--ad-w: {{ s.width }}px; --ad-ratio: {{ s.width }} / {{ s.height }}">
+  <span class="ad-label">{{ ads.label }}</span>
+  {% if s.html %}
+  <div class="ad-code">{{ s.html|safe }}</div>
+  {% elif s.banners %}
+  <div class="ad-rotate">
+    {% for b in s.banners %}
+    <a class="ad-banner" href="{{ b.link or '#' }}" rel="sponsored noopener" target="_blank"{% if not loop.first %} hidden{% endif %}>
+      <img src="{{ b.image if b.image.startswith('http') else root ~ b.image }}" alt="{{ b.alt or ads.label }}" width="{{ s.width }}" height="{{ s.height }}" loading="lazy">
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  {% if ads.contact_url %}<a class="ad-placeholder" href="{{ ads.contact_url }}" rel="noopener">{% else %}<div class="ad-placeholder">{% endif %}
+    <strong>{{ ads.placeholder_text }}</strong>
+    <span>{{ s.width }} × {{ s.height }}</span>
+  {% if ads.contact_url %}</a>{% else %}</div>{% endif %}
+  {% endif %}
+</{{ tag }}>
+{% endif %}
+{% endmacro %}
+
+{% macro entry(it, root, lead=false, show_teaser=true) %}
+<li class="entry{% if lead %} entry-lead{% endif %}" style="--c: {{ it.src_color }}">
+  <time class="entry-time" datetime="{{ it.iso }}">{{ it.time }}</time>
+  <div class="entry-body">
+    <p class="entry-meta"><span class="src">{{ it.src_name }}</span>{% if it.category %}<span class="cat">{{ it.category }}</span>{% endif %}</p>
+    <h3 class="entry-title"><a href="{{ root }}{{ it.path }}">{{ it.title }}</a></h3>
+    {% if show_teaser and it.body %}<p class="entry-teaser">{{ it.body }}</p>{% endif %}
+  </div>
+</li>
+{% endmacro %}
+
+{% macro timeline(groups, root, ads, lead_first=false) %}
+{% for g in groups %}
+{% set first_group = loop.first %}
+<section class="day">
+  <h2 class="day-head">{{ g.day }}</h2>
+  <ol class="entries">
+    {% for it in g.entries %}
+    {{ entry(it, root, lead=(lead_first and first_group and loop.first)) }}
+    {% if g.ad_at == loop.index %}{{ ad_slot('lent', root, ads, tag="li", extra="ad-inline") }}{% endif %}
+    {% endfor %}
+  </ol>
+</section>
+{% endfor %}
+{% endmacro %}

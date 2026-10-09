@@ -1,0 +1,16 @@
+Reklam bannerlərinizi bu qovluğa yükləyin (GitHub-da: Add file → Upload files).
+Sonra config.toml faylının [ads.*] bölmələrində şəklin adını yazın, məsələn:
+
+  [ads.top]
+  banners = [
+    { image = "static/reklam/ust.jpg", link = "https://reklamveren.az", alt = "Şirkətin adı" },
+  ]
+
+Tövsiyə olunan ölçülər (piksel):
+  top   — 728 × 90   (yuxarı banner; telefonda kiçilərək göstərilir)
+  left  — 160 × 600  (sol sütun, geniş ekranlarda)
+  right — 300 × 600  (sağ sütun, geniş ekranlarda)
+  lent  — 300 × 250  (telefonda xəbərlərin arasında)
+
+Şəkli 2 qat böyük hazırlasanız (məs. 1456 × 180), müasir ekranlarda daha kəskin görünəcək.
+Format: JPG, PNG, WEBP və ya GIF.

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import timeline %}
+{% block title %}{{ source.name }} xəbərləri — {{ site.name }}{% endblock %}
+{% block description %}{{ source.name }} saytından son xəbərlər{% endblock %}
+{% block content %}
+<h1 class="page-head" style="--c: {{ source.color }}"><span class="dot" aria-hidden="true"></span>{{ source.name }}</h1>
+{% if groups %}
+{{ timeline(groups, root, ads) }}
+{% else %}
+<div class="empty">
+  <h2>{{ source.name }} saytından hələ xəbər gəlməyib</h2>
+  <p>Bot növbəti yoxlamada bu mənbəni yenidən oxuyacaq. Uzun müddət boş qalırsa, config.toml-da lentin ünvanını yoxlayın.</p>
+</div>
+{% endif %}
+{% endblock %}

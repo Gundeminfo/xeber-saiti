@@ -1,0 +1,7 @@
+# Bot öz məlumatlarını "bot-data" budağında saxlayır
+data/
+_site/
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
