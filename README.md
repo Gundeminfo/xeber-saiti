@@ -1,6 +1,6 @@
 # Gündəm — avtomatik xəbər saytı və paylaşım botu
 
-Bot hər 30 dəqiqədən bir Azərbaycan xəbər saytlarının (APA, Report, AZƏRTAC, Trend, Qafqazinfo) RSS lentlərini oxuyur və:
+Bot hər 30 dəqiqədən bir icazə verən Azərbaycan xəbər saytlarının (APA, AZƏRTAC, Report) RSS lentlərini oxuyur və:
 
 - **sayta** hər xəbər üçün ayrıca səhifə əlavə edir (başlıq, qısa təsvir, mənbəyə link);
 - **Telegram kanalına** hər dəfə ən təzə 4 xəbəri göndərir;
@@ -125,7 +125,25 @@ Bütün ayarlar `config.toml` faylındadır. GitHub-da faylı açıb qələm iş
 | Yeni xəbər mənbəyi | faylın sonundakı `[[sources]]` blokunu kopyalayıb RSS ünvanını yazın |
 | Mənbə saytda qalsın, amma paylaşılmasın | həmin mənbəyə `social = false` |
 | Mənbəni söndürmək | həmin mənbəyə `enabled = false` |
+| Mənbə adlarını göstərmək/gizlətmək | `[site]` → `show_sources = true / false` |
+| Fotoları dəyişmək | `[images.stock]` siyahılarında linkləri dəyişin (aşağıda "Şəkillər") |
 | Reklam əlavə etmək | aşağıdakı "Reklam yerləri" bölməsinə baxın |
+
+---
+
+## Mənbələr və şəkillər
+
+**Mənbə adları.** `show_sources = false` olduqda mənbə saytların adları saytda, menyuda və paylaşımlarda görünmür. Menyuda bölmələr olur: Siyasət, İqtisadiyyat, Cəmiyyət, Dünya, İdman, Hadisə. Hər xəbərin öz səhifəsində yalnız kiçik "Mənbə: apa.az" keçidi qalır. APA, AZƏRTAC və Report materiallardan istifadəni məhz mənbəyə keçid qoymaq şərti ilə icazə verir.
+
+**Söndürülmüş mənbələr.** Trend reklamlı saytlarda istifadəni qadağan edir və gündə ən çox 10 xəbərə icazə verir. Qafqazinfo isə istifadə qaydası yazmayıb. Ona görə hər ikisi söndürülüb. İcazə alsanız, `config.toml`-da `enabled = true` edin.
+
+**Şəkillər.** Mənbə saytların fotoları götürülmür, çünki heç biri fotolardan istifadəyə icazə vermir. Hər xəbərə bölməsinə uyğun pulsuz foto qoyulur (Unsplash lisenziyası, kommersiya istifadəsinə icazə verir) və altında "İllüstrativ foto" yazılır. Foto açılmasa, bölmənin rəngli örtüyü göstərilir.
+
+Öz fotolarınızı qoymaq üçün:
+1. Şəkli `static/sekiller/` qovluğuna yükləyin.
+2. `config.toml`-da `[images.stock]` bölməsində uyğun siyahıya əlavə edin, məs: `"static/sekiller/baki.jpg"`.
+
+Unsplash-dan başqa foto seçmək üçün foto səhifəsində şəklə sağ klik edib linkini kopyalayın. Link `https://images.unsplash.com/photo-...` kimi olmalıdır.
 
 ---
 

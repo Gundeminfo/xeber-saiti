@@ -1,0 +1,1 @@
+Öz fotolarınızı bu qovluğa yükləyin və config.toml-da [images.stock] siyahısına "static/sekiller/ad.jpg" kimi yazın.

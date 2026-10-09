@@ -11,8 +11,12 @@ from xml.sax.saxutils import escape as xml_escape
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from .cards import render_card, render_site_card
+from urllib.parse import urlsplit
+
+from .cards import render_card, render_cover, render_site_card
 from .config import AD_SLOTS, Config
+from .sections import SECTIONS, classify, section
+from .summarize import scrub_sources
 from .text import fmt_datetime, fmt_day, fmt_time, parse_iso, to_ascii, tz
 
 log = logging.getLogger(__name__)
@@ -28,11 +32,35 @@ def _env(root: Path) -> Environment:
     return env
 
 
+def _photo(url: str, w: int, h: int) -> str:
+    """Unsplash fotoları üçün lazımi ölçünü URL-ə əlavə edir."""
+    if "images.unsplash.com" in url:
+        return f"{url.split('?')[0]}?w={w}&h={h}&fit=crop&q=70&auto=format"
+    return url
+
+
 def _prepare(cfg: Config, items: list[dict], zone) -> list[dict]:
+    show = cfg.show_sources
+    names = cfg.source_names()
+    mode = str(cfg.images.get("mode", "stock")).lower()
+    stock = cfg.images.get("stock", {})
     out = []
     for it in items:
         dt = parse_iso(it["published"])
         src = cfg.source(it["source"])
+        sec = section(classify(it.get("category", ""), it["title"]))
+        body = it.get("summary") or it.get("teaser") or ""
+        if not show:
+            body = scrub_sources(body, names)
+        photo = ""
+        if mode == "stock" and stock.get(sec["id"]):
+            pool = stock[sec["id"]]
+            photo = pool[int(it["id"][:8], 16) % len(pool)]
+        cover = f"static/cover/{sec['id']}.jpg"
+        thumb_cover = f"static/cover/{sec['id']}-kicik.jpg"
+        has_img = mode in ("stock", "cover")
+        src_name = src.name if src else it["source"]
+        src_color = src.color if src else "#5b6b78"
         out.append({
             **it,
             "dt": dt,
@@ -41,9 +69,20 @@ def _prepare(cfg: Config, items: list[dict], zone) -> list[dict]:
             "when": fmt_datetime(dt, zone),
             "iso": dt.isoformat(),
             "path": f"xeber/{it['slug']}.html",
-            "src_name": src.name if src else it["source"],
-            "src_color": src.color if src else "#5b6b78",
-            "body": it.get("summary") or it.get("teaser") or "",
+            "src_name": src_name,
+            "src_color": src_color,
+            "src_domain": urlsplit(it["link"]).netloc.removeprefix("www."),
+            "section": sec["id"],
+            "sec_name": sec["name"],
+            "sec_color": sec["color"],
+            "label": src_name if show else sec["name"],
+            "label_color": src_color if show else sec["color"],
+            "body": body,
+            "img_thumb": (_photo(photo, 320, 200) if photo else thumb_cover) if has_img else "",
+            "img_fallback_thumb": thumb_cover,
+            "img_large": (_photo(photo, 1200, 675) if photo else cover) if has_img else "",
+            "img_fallback": cover,
+            "img_credit": "Unsplash" if "unsplash.com" in photo else "",
         })
     return out
 
@@ -107,13 +146,16 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
     for it in items:
         counts[it["source"]] = counts.get(it["source"], 0) + 1
     sources = [{"id": s.id, "name": s.name, "color": s.color, "count": counts.get(s.id, 0)}
-               for s in cfg.sources if s.enabled or counts.get(s.id)]
+               for s in cfg.sources if s.enabled]
+    sections = [dict(sec) for sec in SECTIONS]
 
     common = {
         "site": cfg.site,
         "site_url": site_url,
         "socials": socials,
         "sources": sources,
+        "sections": sections,
+        "show_sources": cfg.show_sources,
         "updated": fmt_datetime(updated, zone),
         "updated_iso": updated.isoformat(),
         "year": updated.astimezone(zone).year,
@@ -127,13 +169,17 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
     # ---- Şəkil-kartlar: sosial şəbəkəyə gedən son xəbərlər üçün
     cards_dir = out / "kart"
     render_site_card(cfg.site["name"], cfg.site["tagline"], out / "static" / "og.jpg")
+    for sec in SECTIONS:
+        render_cover(sec["name"], sec["color"], cfg.site["name"], out / "static" / "cover" / f"{sec['id']}.jpg")
+        render_cover(sec["name"], sec["color"], cfg.site["name"],
+                     out / "static" / "cover" / f"{sec['id']}-kicik.jpg", small=True)
     card_ids: set[str] = set()
     cutoff = updated - timedelta(hours=48)
     for it in items:
         if it["dt"] < cutoff:
             break
         if any(p.get("status") in ("queued", "sent") for p in it.get("posts", {}).values()):
-            render_card(it, it["src_name"], it["src_color"], cfg.site["name"], site_url,
+            render_card(it, it["label"], it["label_color"], cfg.site["name"], site_url,
                         zone, cards_dir / f"{it['id']}.jpg")
             card_ids.add(it["id"])
 
@@ -163,28 +209,43 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
 
     # ---- Xəbər səhifələri
     tpl_article = env.get_template("article.html")
+    key = "source" if cfg.show_sources else "section"
     for idx, it in enumerate(items):
-        same_src = [x for x in items[max(0, idx - 40): idx + 40]
-                    if x["source"] == it["source"] and x["id"] != it["id"]][:3]
-        latest = [x for x in items[:12] if x["id"] != it["id"] and x not in same_src][:5]
-        og_image = (f"{site_url}/kart/{it['id']}.jpg" if it["id"] in card_ids
-                    else f"{site_url}/static/og.jpg")
-        html = tpl_article.render(**common, root="../", it=it, related=same_src, latest=latest,
-                                  og_image=og_image, nav="",
+        related = [x for x in items[max(0, idx - 60): idx + 60]
+                   if x[key] == it[key] and x["id"] != it["id"]][:3]
+        latest = [x for x in items[:12] if x["id"] != it["id"] and x not in related][:5]
+        if it["id"] in card_ids:
+            og_image = f"{site_url}/kart/{it['id']}.jpg"
+        elif it["img_large"].startswith("http"):
+            og_image = it["img_large"]
+        elif it["img_large"]:
+            og_image = f"{site_url}/{it['img_large']}"
+        else:
+            og_image = f"{site_url}/static/og.jpg"
+        html = tpl_article.render(**common, root="../", it=it, related=related, latest=latest,
+                                  og_image=og_image, nav=it["section"],
                                   canonical=f"{site_url}/{it['path']}")
         _write(out / it["path"], html)
 
-    # ---- Mənbə səhifələri
-    tpl_src = env.get_template("source.html")
-    for s in sources:
-        lst = [x for x in items if x["source"] == s["id"]][:80]
-        html = tpl_src.render(**common, root="../", source=s, groups=_group_by_day(lst, lent_after),
-                              nav=s["id"], canonical=f"{site_url}/menbe/{s['id']}.html")
-        _write(out / "menbe" / f"{s['id']}.html", html)
+    # ---- Bölmə səhifələri (və istəyə görə mənbə səhifələri)
+    tpl_list2 = env.get_template("listing.html")
+    for sec in sections:
+        lst = [x for x in items if x["section"] == sec["id"]][:80]
+        html = tpl_list2.render(**common, root="../", heading=sec["name"], color=sec["color"],
+                                groups=_group_by_day(lst, lent_after), nav=sec["id"],
+                                canonical=f"{site_url}/bolme/{sec['id']}.html")
+        _write(out / "bolme" / f"{sec['id']}.html", html)
+    if cfg.show_sources:
+        for src in sources:
+            lst = [x for x in items if x["source"] == src["id"]][:80]
+            html = tpl_list2.render(**common, root="../", heading=src["name"], color=src["color"],
+                                    groups=_group_by_day(lst, lent_after), nav="",
+                                    canonical=f"{site_url}/menbe/{src['id']}.html")
+            _write(out / "menbe" / f"{src['id']}.html", html)
 
     # ---- Axtarış
-    search = [{"t": x["title"], "k": to_ascii(x["title"]), "u": x["path"], "s": x["src_name"],
-               "c": x["src_color"], "d": x["when"]} for x in items[:1500]]
+    search = [{"t": x["title"], "k": to_ascii(x["title"]), "u": x["path"], "s": x["label"],
+               "c": x["label_color"], "d": x["when"]} for x in items[:1500]]
     _write(out / "axtaris.json", json.dumps(search, ensure_ascii=False, separators=(",", ":")))
     _write(out / "axtar.html", env.get_template("search.html").render(
         **common, root="./", nav="search", canonical=f"{site_url}/axtar.html"))
@@ -196,7 +257,7 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
     # ---- RSS, sitemap, robots
     if site_url:
         _write(out / "feed.xml", _rss(cfg, items[:50], updated))
-        _write(out / "sitemap.xml", _sitemap(site_url, items[:1000], sources))
+        _write(out / "sitemap.xml", _sitemap(site_url, items[:1000], sections))
         _write(out / "robots.txt", f"User-agent: *\nAllow: /\nSitemap: {site_url}/sitemap.xml\n")
 
     log.info("Sayt quruldu: %s xəbər, %s səhifə, %s şəkil-kart", len(items), pages, len(card_ids))
@@ -214,7 +275,7 @@ def _rss(cfg: Config, items: list[dict], updated: datetime) -> str:
             f"<link>{xml_escape(url + '/' + it['path'])}</link>"
             f"<guid isPermaLink=\"true\">{xml_escape(url + '/' + it['path'])}</guid>"
             f"<pubDate>{format_datetime(it['dt'])}</pubDate>"
-            f"<category>{xml_escape(it['src_name'])}</category>"
+            f"<category>{xml_escape(it['label'])}</category>"
             f"<description>{xml_escape(it['body'])}</description>"
             "</item>"
         )
@@ -233,7 +294,7 @@ def _rss(cfg: Config, items: list[dict], updated: datetime) -> str:
 
 def _sitemap(url: str, items: list[dict], sources: list[dict]) -> str:
     locs = [f"<url><loc>{xml_escape(url)}/</loc><changefreq>hourly</changefreq></url>"]
-    locs += [f"<url><loc>{xml_escape(url)}/menbe/{s['id']}.html</loc></url>" for s in sources]
+    locs += [f"<url><loc>{xml_escape(url)}/bolme/{s['id']}.html</loc></url>" for s in sources]
     locs += [f"<url><loc>{xml_escape(url + '/' + it['path'])}</loc>"
              f"<lastmod>{it['dt'].date().isoformat()}</lastmod></url>" for it in items]
     return ('<?xml version="1.0" encoding="UTF-8"?>\n'

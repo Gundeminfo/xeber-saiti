@@ -20,6 +20,11 @@ DEFAULTS = {
         "per_page": 40,
         "max_pages": 15,
         "keep_items": 1500,
+        "show_sources": True,
+    },
+    "images": {
+        "mode": "stock",
+        "stock": {},
     },
     "publish": {
         "max_age_hours": 3,
@@ -113,6 +118,19 @@ class Config:
     def source(self, sid: str) -> Source | None:
         return next((s for s in self.sources if s.id == sid), None)
 
+    @property
+    def show_sources(self) -> bool:
+        return bool(self.site.get("show_sources", True))
+
+    def source_names(self) -> list[str]:
+        """Mətnlərdən təmizlənəcək mənbə adları (mənbə adları gizlədiləndə)."""
+        out = set()
+        for s in self.sources:
+            out.update({s.name, s.id})
+            out.add(s.name.replace("Ə", "E").replace("ə", "e"))
+        out.update({"AZƏRTAC", "Azərtac", "AZERTAC", "Azertag", "AZƏRTAG", "Azərtag"})
+        return sorted(out)
+
     # ---- Gizli açarlar: config-də yox, GitHub Secrets-də saxlanılır ----
     @staticmethod
     def secret(name: str) -> str:
@@ -181,6 +199,9 @@ def load_config(path: str | Path) -> Config:
         ))
 
     sections = {name: _merge(defaults, raw.get(name)) for name, defaults in DEFAULTS.items()}
+    stock = (raw.get("images") or {}).get("stock") or {}
+    sections["images"]["stock"] = {k: [u for u in v if isinstance(u, str) and u.strip()]
+                                   for k, v in stock.items() if isinstance(v, list)}
     raw_ads = raw.get("ads") or {}
     for slot, (w, h) in AD_SLOTS.items():
         given = raw_ads.get(slot) or {}

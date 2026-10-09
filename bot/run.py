@@ -149,6 +149,12 @@ def main(argv: list[str] | None = None) -> int:
     cfg = load_config(args.config)
     store = Store(Path(args.data))
     keep = int(cfg.site["keep_items"])
+    # Söndürülmüş mənbələrin xəbərlərini saytdan və növbədən çıxar
+    active = {s.id for s in cfg.sources if s.enabled}
+    before = len(store.items)
+    store.items = [i for i in store.items if i.get("source") in active]
+    if len(store.items) != before:
+        log.info("Söndürülmüş mənbələrin %s xəbəri silindi", before - len(store.items))
 
     if args.command in ("collect", "all"):
         collect(cfg, store)

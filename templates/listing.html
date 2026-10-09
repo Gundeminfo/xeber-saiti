@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import timeline with context %}
+{% block title %}{{ heading }} — {{ site.name }}{% endblock %}
+{% block description %}{{ heading }}: son xəbərlər{% endblock %}
+{% block content %}
+<h1 class="page-head" style="--c: {{ color }}"><span class="dot" aria-hidden="true"></span>{{ heading }}</h1>
+{% if groups %}
+{{ timeline(groups, root, ads) }}
+{% else %}
+<div class="empty">
+  <h2>Bu bölmədə hələ xəbər yoxdur</h2>
+  <p>Yeni xəbərlər gəldikcə burada görünəcək. Bot hər 30 dəqiqədən bir yoxlayır.</p>
+</div>
+{% endif %}
+{% endblock %}

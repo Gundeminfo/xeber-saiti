@@ -14,6 +14,9 @@ timezone = "Asia/Baku"
 per_page = 40          # bir səhifədə neçə xəbər
 max_pages = 15         # ana səhifədə neçə səhifə
 keep_items = 1500      # saytda ən çox neçə xəbər saxlansın
+# false — mənbə saytların adları saytda və paylaşımlarda göstərilmir.
+# Yalnız xəbərin öz səhifəsində kiçik "Mənbə: apa.az" keçidi qalır (mənbələrin tələbidir).
+show_sources = false
 
 # ─── Paylaşım qaydaları (bütün şəbəkələr üçün) ──────────────────────
 [publish]
@@ -131,6 +134,49 @@ max_new_per_source = 15
 timeout_seconds = 15
 delay_seconds = 0.5
 
+# ─── Şəkillər ────────────────────────────────────────────────────────
+# Mənbə saytların fotoları istifadə olunmur (onlara icazə yoxdur).
+# mode = "stock" — hər bölmə üçün aşağıdakı pulsuz fotolardan biri (Unsplash lisenziyası:
+#                  pulsuz, kommersiya istifadəsinə icazə var). Foto açılmasa, bölmənin rəngli örtüyü çıxır.
+# mode = "cover" — yalnız saytın öz rəngli örtükləri
+# mode = "off"   — şəkilsiz
+# Öz fotolarınızı da əlavə edə bilərsiniz: static/sekiller/ qovluğuna yükləyib
+# siyahıya "static/sekiller/foto.jpg" kimi yazın.
+[images]
+mode = "stock"
+
+[images.stock]
+siyaset = [
+  "https://images.unsplash.com/photo-1607778417094-1fef13315e6e",
+  "https://images.unsplash.com/photo-1607778102165-6a418ee9adf2",
+  "https://images.unsplash.com/photo-1554446422-d05db23719d2",
+]
+iqtisadiyyat = [
+  "https://images.unsplash.com/photo-1629540946404-ebe133e99f49",
+  "https://images.unsplash.com/photo-1633829131104-e2134f75c6e5",
+  "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3",
+]
+cemiyyet = [
+  "https://images.unsplash.com/photo-1596306499300-0b7b1689b9f6",
+  "https://images.unsplash.com/photo-1596306499398-8d88944a5ec4",
+  "https://images.unsplash.com/photo-1689189044045-7cb0767e5cf1",
+]
+dunya = [
+  "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
+  "https://images.unsplash.com/photo-1521295121783-8a321d551ad2",
+  "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4",
+]
+idman = [
+  "https://images.unsplash.com/photo-1629217855633-79a6925d6c47",
+  "https://images.unsplash.com/photo-1557174949-3b1f5b2e8fac",
+  "https://images.unsplash.com/photo-1540379708242-14a809bef941",
+]
+hadise = [
+  "https://images.unsplash.com/photo-1606022831434-91293aebf25a",
+  "https://images.unsplash.com/photo-1608095476825-d4e0f916372f",
+  "https://images.unsplash.com/photo-1619025873875-59dfdd2bbbd6",
+]
+
 # ─── Xəbər mənbələri ─────────────────────────────────────────────────
 # Yeni mənbə əlavə etmək üçün aşağıdakı bloku kopyalayın və RSS ünvanını yazın.
 # social = false — xəbərlər saytda görünür, amma sosial şəbəkələrə getmir.
@@ -153,14 +199,18 @@ name = "AZƏRTAC"
 url = "https://azertag.az/rss"
 color = "#0b8457"
 
+# Söndürülüb: Trend reklamlı saytlarda istifadəni qadağan edir, gündə ən çox 10 xəbərə icazə verir.
 [[sources]]
 id = "trend"
 name = "Trend"
 url = "https://az.trend.az/feeds/index.rss"
 color = "#e07b00"
+enabled = false
 
+# Söndürülüb: saytda materiallardan istifadə qaydası yazılmayıb. İcazə alsanız, true edin.
 [[sources]]
 id = "qafqazinfo"
 name = "Qafqazinfo"
 url = "https://qafqazinfo.az/rss"
 color = "#7a3db8"
+enabled = false

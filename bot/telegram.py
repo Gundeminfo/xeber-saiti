@@ -21,20 +21,22 @@ def hashtag(text: str) -> str:
     return f"#{tag}" if tag and not tag.isdigit() else ""
 
 
-def format_message(item: dict, source_name: str, page_url: str, use_hashtags: bool) -> str:
+def format_message(item: dict, source_name: str, page_url: str, use_hashtags: bool,
+                   show_category: bool = True) -> str:
     e = lambda s: html.escape(s or "", quote=False)  # noqa: E731
     parts = [f"<b>{e(item['title'])}</b>"]
     body = item.get("summary") or item.get("teaser") or ""
     if body:
         parts.append(e(body))
     meta = f"📰 {e(source_name)}"
-    if item.get("category"):
+    if show_category and item.get("category"):
         meta += f" | {e(item['category'])}"
     parts.append(meta)
     href = html.escape(page_url or item["link"], quote=True)
     parts.append(f'<a href="{href}">Ətraflı oxu</a>')
     if use_hashtags:
-        tags = " ".join(t for t in (hashtag(item.get("category", "")), hashtag(source_name)) if t)
+        cat = item.get("category", "") if show_category else ""
+        tags = " ".join(dict.fromkeys(t for t in (hashtag(cat), hashtag(source_name)) if t))
         if tags:
             parts.append(tags)
     return "\n\n".join(parts)

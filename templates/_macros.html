@@ -23,13 +23,21 @@
 {% endif %}
 {% endmacro %}
 
-{% macro entry(it, root, lead=false, show_teaser=true) %}
-<li class="entry{% if lead %} entry-lead{% endif %}" style="--c: {{ it.src_color }}">
+{% macro entry(it, root, lead=false, show_teaser=true, thumb=true) %}
+<li class="entry{% if lead %} entry-lead{% endif %}" style="--c: {{ it.label_color }}">
   <time class="entry-time" datetime="{{ it.iso }}">{{ it.time }}</time>
   <div class="entry-body">
-    <p class="entry-meta"><span class="src">{{ it.src_name }}</span>{% if it.category %}<span class="cat">{{ it.category }}</span>{% endif %}</p>
-    <h3 class="entry-title"><a href="{{ root }}{{ it.path }}">{{ it.title }}</a></h3>
-    {% if show_teaser and it.body %}<p class="entry-teaser">{{ it.body }}</p>{% endif %}
+    <div class="entry-text">
+      <p class="entry-meta"><span class="src">{{ it.label }}</span>{% if show_sources and it.category %}<span class="cat">{{ it.category }}</span>{% endif %}</p>
+      <h3 class="entry-title"><a href="{{ root }}{{ it.path }}">{{ it.title }}</a></h3>
+      {% if show_teaser and it.body %}<p class="entry-teaser">{{ it.body }}</p>{% endif %}
+    </div>
+    {% if thumb and it.img_thumb %}
+    <a class="entry-thumb" href="{{ root }}{{ it.path }}" tabindex="-1" aria-hidden="true">
+      {% set u = it.img_large if lead else it.img_thumb %}
+      <img src="{{ u if u.startswith('http') else root ~ u }}" alt="" loading="{{ 'eager' if lead else 'lazy' }}" decoding="async" onerror="this.onerror=null;this.src='{{ root }}{{ it.img_fallback if lead else it.img_fallback_thumb }}'">
+    </a>
+    {% endif %}
   </div>
 </li>
 {% endmacro %}

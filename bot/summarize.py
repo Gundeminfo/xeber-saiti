@@ -77,6 +77,24 @@ def strip_boilerplate(text: str) -> str:
     return out
 
 
+_DATELINE = re.compile(r"^\s*[A-ZƏÖÜĞŞÇİ][\wəöüğşçıİ-]+\.\s*[A-ZƏÖÜĞŞÇİ][\w-]*\s*:\s*")
+_SPLIT = re.compile(r"(?<=[.!?…])\s+")
+
+
+def scrub_sources(text: str, names: list[str]) -> str:
+    """Mətndən mənbə adlarını təmizləyir: "Bakı. Trend:" başlanğıcını və mənbə adı olan cümlələri atır."""
+    if not text:
+        return ""
+    t = _DATELINE.sub("", text.strip())
+    t = strip_boilerplate(t)
+    words = [n for n in {n.strip() for n in names} if len(n) >= 3]
+    if not words:
+        return t
+    rx = re.compile(r"(?<![\wəöüğşçı])(?:" + "|".join(re.escape(w) for w in words) + r")(?![a-zəöüğşçı])", re.I)
+    kept = [s for s in _SPLIT.split(t) if s and not rx.search(s)]
+    return " ".join(kept).strip()
+
+
 def source_teaser(entry_description: str, page_description: str, title: str) -> str:
     """RSS təsviri, olmadıqda səhifənin meta təsviri əsasında qısa mətn."""
     for raw in (entry_description, page_description):

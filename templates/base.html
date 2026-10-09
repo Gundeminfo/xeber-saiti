@@ -1,4 +1,4 @@
-{% from "_macros.html" import ad_slot %}
+{% from "_macros.html" import ad_slot with context %}
 <!doctype html>
 <html lang="az">
 <head>
@@ -39,8 +39,8 @@
 <nav class="sources" aria-label="Mənbələr">
   <ul class="wrap">
     <li><a href="{{ root }}index.html"{% if nav == 'home' %} aria-current="page"{% endif %}>Hamısı</a></li>
-    {% for s in sources %}
-    <li><a href="{{ root }}menbe/{{ s.id }}.html" style="--c: {{ s.color }}"{% if nav == s.id %} aria-current="page"{% endif %}><span class="dot" aria-hidden="true"></span>{{ s.name }}</a></li>
+    {% for s in sections %}
+    <li><a href="{{ root }}bolme/{{ s.id }}.html" style="--c: {{ s.color }}"{% if nav == s.id %} aria-current="page"{% endif %}><span class="dot" aria-hidden="true"></span>{{ s.name }}</a></li>
     {% endfor %}
     <li class="nav-search"><a href="{{ root }}axtar.html"{% if nav == 'search' %} aria-current="page"{% endif %}>Axtarış</a></li>
   </ul>
@@ -62,7 +62,11 @@
       {% for s in socials %}<a href="{{ s.url }}" rel="noopener">{{ s.label }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
     </p>
     {% endif %}
+    {% if show_sources %}
     <p>Xəbərlər {% for s in sources %}{{ s.name }}{% if not loop.last %}, {% endif %}{% endfor %} saytlarının açıq lentlərindən avtomatik toplanır. Hər xəbərin müəllif hüququ mənbəyə məxsusdur — tam mətni mənbənin saytında oxuyun.</p>
+    {% else %}
+    <p>Xəbərlər açıq xəbər lentlərindən avtomatik toplanır. Hər xəbərin səhifəsində ilkin mənbəyə keçid var, müəllif hüququ mənbəyə məxsusdur. Fotolar illüstrativdir.</p>
+    {% endif %}
     <p>© {{ year }} {{ site.name }}.{% if site_url %} <a href="{{ site_url }}/feed.xml">RSS lentinə abunə olun</a>.{% endif %}</p>
   </div>
 </footer>

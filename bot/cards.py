@@ -135,3 +135,26 @@ def render_site_card(site_name: str, tagline: str, out_path: Path) -> Path:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     img.save(out_path, "JPEG", quality=88, optimize=True)
     return out_path
+
+
+def render_cover(label: str, color: str, site_name: str, out_path: Path,
+                 small: bool = False) -> Path:
+    """Fotosu olmayan və ya açılmayan xəbərlər üçün bölmə örtüyü.
+
+    small=True: kiçik, yazısız variant (siyahıdakı kiçik şəkillər üçün).
+    """
+    w, h = (480, 300) if small else (1200, 675)
+    base = _hex(color)
+    dark = tuple(int(c * 0.62) for c in base)
+    img = Image.new("RGB", (w, h), dark)
+    d = ImageDraw.Draw(img)
+    # yumşaq diaqonal zolaqlar
+    for i in range(-h, w, 90):
+        d.polygon([(i, h), (i + 45, h), (i + 45 + h, 0), (i + h, 0)], fill=tuple(min(255, int(c * 0.7)) for c in base))
+    d.rectangle((0, h - 14, w, h), fill=base)
+    if not small:
+        d.text((72, h - 72 - 120), label, font=font(120, 700), fill=WHITE)
+        d.text((76, 64), site_name, font=font(44, 600), fill=WHITE)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(out_path, "JPEG", quality=85, optimize=True)
+    return out_path

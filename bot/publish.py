@@ -13,6 +13,8 @@ from .config import NETWORK_LABELS, Config
 from .social import MetaPage, SocialError, Threads, wait_until_public
 from .store import Store
 from .telegram import TelegramError, hashtag
+from .sections import classify, section
+from .summarize import scrub_sources
 from .text import parse_iso, to_ascii
 from .tokens import threads_token
 
@@ -104,36 +106,48 @@ def card_url(cfg: Config, item: dict) -> str:
     return f"{cfg.site_url}/kart/{item['id']}.jpg"
 
 
-def _body(item: dict) -> str:
-    return item.get("summary") or item.get("teaser") or ""
+def _body(cfg: Config, item: dict) -> str:
+    body = item.get("summary") or item.get("teaser") or ""
+    return body if cfg.show_sources else scrub_sources(body, cfg.source_names())
+
+
+def section_name(item: dict) -> str:
+    return section(classify(item.get("category", ""), item["title"]))["name"]
 
 
 def _tags(cfg: Config, item: dict, source_name: str) -> str:
     if not cfg.publish.get("hashtags", True):
         return ""
-    tags = [hashtag(item.get("category", "")), hashtag(source_name), hashtag(cfg.site["name"])]
+    if cfg.show_sources:
+        tags = [hashtag(item.get("category", "")), hashtag(source_name), hashtag(cfg.site["name"])]
+    else:
+        tags = [hashtag(section_name(item)), hashtag(cfg.site["name"])]
     return " ".join(dict.fromkeys(t for t in tags if t))
 
 
+def _credit(cfg: Config, source_name: str) -> str:
+    return f"Mənbə: {source_name}" if cfg.show_sources else ""
+
+
 def facebook_text(cfg: Config, item: dict, source_name: str) -> str:
-    parts = [item["title"], _body(item), f"Mənbə: {source_name}", _tags(cfg, item, source_name)]
+    parts = [item["title"], _body(cfg, item), _credit(cfg, source_name), _tags(cfg, item, source_name)]
     return "\n\n".join(p for p in parts if p)
 
 
 def instagram_caption(cfg: Config, item: dict, source_name: str) -> str:
     host = urlsplit(cfg.site_url).netloc if cfg.site_url else ""
-    more = f"Mənbə: {source_name}"
+    more = _credit(cfg, source_name)
     if host:
-        more += f"\nTam xəbər: {host} (link profildədir)"
-    parts = [item["title"], _body(item), more, _tags(cfg, item, source_name)]
+        more = (more + "\n" if more else "") + f"Tam xəbər: {host} (link profildədir)"
+    parts = [item["title"], _body(cfg, item), more, _tags(cfg, item, source_name)]
     return "\n\n".join(p for p in parts if p)[:2100]
 
 
 def threads_text(cfg: Config, item: dict, source_name: str) -> str:
     limit = 400  # Threads limiti 500-dür; Azərbaycan hərfləri üçün ehtiyat saxlanılır
     head = item["title"]
-    tail = f"Mənbə: {source_name}"
-    body = _body(item)
+    tail = _credit(cfg, source_name) or f"#{cfg.site['name']}"
+    body = _body(cfg, item)
     room = limit - len(head) - len(tail) - 4
     if body and room > 60:
         if len(body) > room:
@@ -212,8 +226,10 @@ def publish_queue(cfg: Config, store: Store, now: datetime) -> dict[str, int]:
             rec = it["posts"][net]
             try:
                 if net == "telegram":
-                    text = telegram.format_message(it, sname, page_url(cfg, it),
-                                                   cfg.publish.get("hashtags", True))
+                    text = telegram.format_message(
+                        {**it, "teaser": _body(cfg, it), "summary": ""},
+                        sname if cfg.show_sources else section_name(it), page_url(cfg, it),
+                        cfg.publish.get("hashtags", True), show_category=cfg.show_sources)
                     pid = telegram.send_message(cfg.secret("TELEGRAM_BOT_TOKEN"),
                                                 cfg.secret("TELEGRAM_CHANNEL"), text,
                                                 bool(cfg.telegram.get("link_preview")))

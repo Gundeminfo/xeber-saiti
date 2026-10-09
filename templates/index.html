@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import timeline %}
+{% from "_macros.html" import timeline with context %}
 {% block title %}{% if page > 1 %}{{ site.name }} — səhifə {{ page }}{% else %}{{ site.name }} — {{ site.tagline }}{% endif %}{% endblock %}
 {% block content %}
 <h1 class="sr-only">{{ site.name }}: son xəbərlər</h1>
