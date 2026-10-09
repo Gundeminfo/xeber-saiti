@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 
 from .cards import render_card, render_cover, render_site_card
 from .config import AD_SLOTS, Config
+from .photos import PhotoPicker
 from .sections import SECTIONS, classify, section
 from .summarize import scrub_sources
 from .text import fmt_datetime, fmt_day, fmt_time, parse_iso, to_ascii, tz
@@ -42,8 +43,8 @@ def _photo(url: str, w: int, h: int) -> str:
 def _prepare(cfg: Config, items: list[dict], zone) -> list[dict]:
     show = cfg.show_sources
     names = cfg.source_names()
-    mode = str(cfg.images.get("mode", "stock")).lower()
-    stock = cfg.images.get("stock", {})
+    mode = str(cfg.images.get("mode", "topic")).lower()
+    picker = PhotoPicker(cfg.root_dir / "sekiller.toml") if mode == "topic" else None
     out = []
     for it in items:
         dt = parse_iso(it["published"])
@@ -52,13 +53,15 @@ def _prepare(cfg: Config, items: list[dict], zone) -> list[dict]:
         body = it.get("summary") or it.get("teaser") or ""
         if not show:
             body = scrub_sources(body, names)
-        photo = ""
-        if mode == "stock" and stock.get(sec["id"]):
-            pool = stock[sec["id"]]
-            photo = pool[int(it["id"][:8], 16) % len(pool)]
         cover = f"static/cover/{sec['id']}.jpg"
         thumb_cover = f"static/cover/{sec['id']}-kicik.jpg"
-        has_img = mode in ("stock", "cover")
+        photo = picker.pick(it["title"], it["id"])[0] if picker else ""
+        if mode == "cover":
+            thumb, large = thumb_cover, cover
+        elif photo:
+            thumb, large = _photo(photo, 320, 200), _photo(photo, 1200, 675)
+        else:
+            thumb = large = ""
         src_name = src.name if src else it["source"]
         src_color = src.color if src else "#5b6b78"
         out.append({
@@ -78,9 +81,9 @@ def _prepare(cfg: Config, items: list[dict], zone) -> list[dict]:
             "label": src_name if show else sec["name"],
             "label_color": src_color if show else sec["color"],
             "body": body,
-            "img_thumb": (_photo(photo, 320, 200) if photo else thumb_cover) if has_img else "",
+            "img_thumb": thumb,
             "img_fallback_thumb": thumb_cover,
-            "img_large": (_photo(photo, 1200, 675) if photo else cover) if has_img else "",
+            "img_large": large,
             "img_fallback": cover,
             "img_credit": "Unsplash" if "unsplash.com" in photo else "",
         })
@@ -134,6 +137,9 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
     (out / ".nojekyll").write_text("", encoding="utf-8")
 
     env = _env(root)
+    import hashlib
+    asset_v = hashlib.sha1(b"".join((root / "static" / f).read_bytes()
+                                    for f in ("style.css", "axtar.js"))).hexdigest()[:8]
     items = _prepare(cfg, sorted(items, key=lambda i: i["published"], reverse=True), zone)
     site_url = cfg.site_url
     socials = [
@@ -160,6 +166,7 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
         "updated_iso": updated.isoformat(),
         "year": updated.astimezone(zone).year,
         "ads": _ads(cfg),
+        "asset_v": asset_v,
     }
     lent_after = int(cfg.ads.get("lent_after", 6)) if common["ads"]["slots"]["lent"]["active"] else 0
     ads_txt = str(cfg.ads.get("ads_txt", "")).strip()

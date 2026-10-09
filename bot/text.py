@@ -34,6 +34,11 @@ def to_ascii(text: str) -> str:
     return t.encode("ascii", "ignore").decode()
 
 
+def az_lower(text: str) -> str:
+    """Azərbaycan qaydası ilə kiçik hərf: İ→i, I→ı (ə, ö, ü, ğ, ş, ç saxlanılır)."""
+    return (text or "").replace("İ", "i").replace("I", "ı").lower()
+
+
 def slugify(text: str, max_len: int = 70) -> str:
     t = re.sub(r"[^a-z0-9]+", "-", to_ascii(text)).strip("-")
     if len(t) > max_len:

@@ -126,7 +126,7 @@ Bütün ayarlar `config.toml` faylındadır. GitHub-da faylı açıb qələm iş
 | Mənbə saytda qalsın, amma paylaşılmasın | həmin mənbəyə `social = false` |
 | Mənbəni söndürmək | həmin mənbəyə `enabled = false` |
 | Mənbə adlarını göstərmək/gizlətmək | `[site]` → `show_sources = true / false` |
-| Fotoları dəyişmək | `[images.stock]` siyahılarında linkləri dəyişin (aşağıda "Şəkillər") |
+| Fotoları və mövzuları dəyişmək | `sekiller.toml` faylı (aşağıda "Şəkillər") |
 | Reklam əlavə etmək | aşağıdakı "Reklam yerləri" bölməsinə baxın |
 
 ---
@@ -137,13 +137,15 @@ Bütün ayarlar `config.toml` faylındadır. GitHub-da faylı açıb qələm iş
 
 **Söndürülmüş mənbələr.** Trend reklamlı saytlarda istifadəni qadağan edir və gündə ən çox 10 xəbərə icazə verir. Qafqazinfo isə istifadə qaydası yazmayıb. Ona görə hər ikisi söndürülüb. İcazə alsanız, `config.toml`-da `enabled = true` edin.
 
-**Şəkillər.** Mənbə saytların fotoları götürülmür, çünki heç biri fotolardan istifadəyə icazə vermir. Hər xəbərə bölməsinə uyğun pulsuz foto qoyulur (Unsplash lisenziyası, kommersiya istifadəsinə icazə verir) və altında "İllüstrativ foto" yazılır. Foto açılmasa, bölmənin rəngli örtüyü göstərilir.
+**Şəkillər.** Mənbə saytların fotoları götürülmür, çünki heç biri fotolardan istifadəyə icazə vermir. Bot şəkli başlığın mövzusuna görə seçir: elektrik, liman, futbol, valyuta, hava, yol, məktəb və s. Fotolar Unsplash-dandır: pulsuz və kommersiya istifadəsinə icazə verilir. Altında "İllüstrativ foto" yazılır.
 
-Öz fotolarınızı qoymaq üçün:
-1. Şəkli `static/sekiller/` qovluğuna yükləyin.
-2. `config.toml`-da `[images.stock]` bölməsində uyğun siyahıya əlavə edin, məs: `"static/sekiller/baki.jpg"`.
+Uyğun mövzu tapılmasa, xəbər şəkilsiz qalır. Ölüm, partlayış, müharibə kimi faciəli xəbərlərə qəsdən şəkil qoyulmur.
 
-Unsplash-dan başqa foto seçmək üçün foto səhifəsində şəklə sağ klik edib linkini kopyalayın. Link `https://images.unsplash.com/photo-...` kimi olmalıdır.
+Mövzuları və fotoları `sekiller.toml` faylında dəyişə bilərsiniz:
+- `words` — başlıqda axtarılan sözlər;
+- `photos` — fotolar. Öz fotonuzu `static/sekiller/` qovluğuna yükləyib `"static/sekiller/ad.jpg"` kimi yazın.
+
+Bütün xəbərlərdə bölmənin rəngli örtüyünü görmək istəsəniz, `config.toml`-da `[images]` → `mode = "cover"` yazın.
 
 ---
 

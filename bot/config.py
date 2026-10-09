@@ -23,8 +23,7 @@ DEFAULTS = {
         "show_sources": True,
     },
     "images": {
-        "mode": "stock",
-        "stock": {},
+        "mode": "topic",
     },
     "publish": {
         "max_age_hours": 3,
@@ -199,9 +198,6 @@ def load_config(path: str | Path) -> Config:
         ))
 
     sections = {name: _merge(defaults, raw.get(name)) for name, defaults in DEFAULTS.items()}
-    stock = (raw.get("images") or {}).get("stock") or {}
-    sections["images"]["stock"] = {k: [u for u in v if isinstance(u, str) and u.strip()]
-                                   for k, v in stock.items() if isinstance(v, list)}
     raw_ads = raw.get("ads") or {}
     for slot, (w, h) in AD_SLOTS.items():
         given = raw_ads.get(slot) or {}

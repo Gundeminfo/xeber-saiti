@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ root }}static/style.css">
+<link rel="stylesheet" href="{{ root }}static/style.css?v={{ asset_v }}">
 {% if ads.head_html %}{{ ads.head_html|safe }}{% endif %}
 </head>
 <body{% if ads.rails %} class="with-rails" style="--left-w: {{ ads.slots.left.width if ads.slots.left.active else 0 }}px; --right-w: {{ ads.slots.right.width if ads.slots.right.active else 0 }}px"{% endif %}>

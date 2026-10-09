@@ -35,7 +35,7 @@
     {% if thumb and it.img_thumb %}
     <a class="entry-thumb" href="{{ root }}{{ it.path }}" tabindex="-1" aria-hidden="true">
       {% set u = it.img_large if lead else it.img_thumb %}
-      <img src="{{ u if u.startswith('http') else root ~ u }}" alt="" loading="{{ 'eager' if lead else 'lazy' }}" decoding="async" onerror="this.onerror=null;this.src='{{ root }}{{ it.img_fallback if lead else it.img_fallback_thumb }}'">
+      <img src="{{ u if u.startswith('http') else root ~ u }}" alt="" {% if lead %}width="1200" height="675"{% else %}width="160" height="100"{% endif %} style="max-width:100%;height:auto" loading="{{ 'eager' if lead else 'lazy' }}" decoding="async" onerror="this.onerror=null;this.src='{{ root }}{{ it.img_fallback if lead else it.img_fallback_thumb }}'">
     </a>
     {% endif %}
   </div>

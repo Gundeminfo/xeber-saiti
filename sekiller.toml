@@ -1,0 +1,241 @@
+# ═══════════════════════════════════════════════════════════════════
+#  Xəbər şəkilləri: başlıqdakı sözə görə foto seçilir.
+#
+#  Bot başlığı yuxarıdan aşağı bu siyahı ilə yoxlayır və İLK uyğun mövzunun
+#  fotolarından birini götürür. Heç bir mövzu uyğun gəlməsə, xəbər şəkilsiz qalır.
+#  Bu, yanlış şəkil qoymaqdan yaxşıdır.
+#
+#  words  — başlıqda axtarılan sözlər (söz kökü kifayətdir: "yağış" → "yağışlı" də tapılır)
+#  photos — foto linkləri. Boş siyahı = bu mövzuda şəkil qoyulmasın.
+#
+#  Fotolar Unsplash-dandır: pulsuz, kommersiya istifadəsinə icazə var.
+#  Öz fotonuzu static/sekiller/ qovluğuna yükləyib "static/sekiller/ad.jpg" kimi yaza bilərsiniz.
+# ═══════════════════════════════════════════════════════════════════
+
+# Faciəli xəbərlərə illüstrativ foto qoyulmur
+[[topic]]
+name = "Faciə"
+words = ["ölüb", "ölən", "öldü", "həlak", "meyit", "qətl", "öldürül", "mina", "partlayış",
+         "hücum", "raket", "PUA", "dron", "zərbə", "müharibə", "yaralı", "şəhid", "terror", "girov"]
+photos = []
+
+[[topic]]
+name = "Yanğın"
+words = ["yanğın", "yanır", "alov"]
+photos = [
+  "https://images.unsplash.com/photo-1660323671848-928629deddca",
+  "https://images.unsplash.com/photo-1622783089891-ddf18baab338",
+]
+
+[[topic]]
+name = "Yol qəzası"
+words = ["qəza", "toqquş", "aşıb", "piyadanı vurub"]
+photos = [
+  "https://images.unsplash.com/photo-1597328290883-50c5787b7c7e",
+  "https://images.unsplash.com/photo-1673187139211-1e7ec3dd60ec",
+]
+
+[[topic]]
+name = "Məhkəmə"
+words = ["məhkəmə", "hakim", "prokuror", "ittiham", "hökm", "cinayət işi", "həbs cəzası"]
+photos = [
+  "https://images.unsplash.com/photo-1676181739678-47d76dc38a87",
+  "https://images.unsplash.com/photo-1767972463877-b64ba4283cd0",
+]
+
+[[topic]]
+name = "Polis"
+words = ["polis", "DİN", "saxlanıl", "həbs", "cinayət", "narkotik", "oğurla", "dələduz", "reyd"]
+photos = [
+  "https://images.unsplash.com/photo-1606022831434-91293aebf25a",
+  "https://images.unsplash.com/photo-1608095476825-d4e0f916372f",
+]
+
+# Bu idman növləri üçün uyğun foto yoxdur — futbol şəkli düşməsin deyə şəkilsiz
+[[topic]]
+name = "Digər idman"
+words = ["basketbol", "voleybol", "həndbol", "şahmat", "tennis", "üzgüçülük", "atletika", "gimnastika"]
+photos = []
+
+[[topic]]
+name = "Futbol"
+words = ["futbol", "UEFA", "FIFA", "Premyer Liqa", "liqa", "matç", "kubok", "qol", "stadion",
+         "Neftçi", "çempionlar liqası", "millimiz", "yığma"]
+photos = [
+  "https://images.unsplash.com/photo-1579952363873-27f3bade9f55",
+  "https://images.unsplash.com/photo-1574629810360-7efbbe195018",
+  "https://images.unsplash.com/photo-1629217855633-79a6925d6c47",
+]
+
+[[topic]]
+name = "Döyüş idmanı"
+words = ["cüdo", "güləş", "boks", "karate", "taekvondo", "cüdoçu", "güləşçi", "boksçu"]
+photos = [
+  "https://images.unsplash.com/photo-1656653121475-e33829581294",
+  "https://images.unsplash.com/photo-1515025617920-e1e674b5033c",
+]
+
+[[topic]]
+name = "Elektrik"
+words = ["elektrik", "işıq olmayacaq", "işıqsız", "enerji təchizatı", "elektrik kəsinti", "Azərişıq"]
+photos = [
+  "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e",
+  "https://images.unsplash.com/photo-1543489816-c87b0f5f7dd4",
+  "https://images.unsplash.com/photo-1552772588-12592fc15a64",
+]
+
+[[topic]]
+name = "Neft və qaz"
+words = ["neft", "təbii qaz", "Azeri Light", "Brent", "OPEC", "boru kəməri", "SOCAR", "yataq"]
+photos = [
+  "https://images.unsplash.com/photo-1629540946404-ebe133e99f49",
+  "https://images.unsplash.com/photo-1633829131104-e2134f75c6e5",
+  "https://images.unsplash.com/photo-1726731782158-fcf6822b6ca4",
+]
+
+[[topic]]
+name = "Qızıl"
+words = ["qızılın qiyməti", "qızıl qiymət", "unsiya"]
+photos = [
+  "https://images.unsplash.com/photo-1610375461246-83df859d849d",
+  "https://images.unsplash.com/photo-1624365168056-daf44387e2ae",
+]
+
+[[topic]]
+name = "Birja"
+words = ["birja", "bitcoin", "kripto", "indeks", "səhm", "fond bazar"]
+photos = [
+  "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3",
+  "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f",
+]
+
+[[topic]]
+name = "Pul və maliyyə"
+words = ["manat", "valyuta", "məzənnə", "dollar", "avro", "bank", "kredit", "büdcə", "vergi",
+         "maaş", "pensiya", "istiqraz", "ödəniş", "inflyasiya", "ƏDV", "borc"]
+photos = [
+  "https://images.unsplash.com/photo-1580519542036-c47de6196ba5",
+  "https://images.unsplash.com/photo-1591033594798-33227a05780d",
+  "https://images.unsplash.com/photo-1593672715438-d88a70629abe",
+]
+
+[[topic]]
+name = "Aviasiya"
+words = ["hava liman", "aeroport", "təyyarə", "reys", "aviaşirkət", "AZAL", "uçuş"]
+photos = [
+  "https://images.unsplash.com/photo-1628354215124-dd0ab72828ac",
+  "https://images.unsplash.com/photo-1572198404182-2c115d89fb26",
+]
+
+[[topic]]
+name = "Liman və logistika"
+words = ["liman", "gəmi", "konteyner", "logistika", "dəhliz", "yükdaşıma", "tranzit", "ixrac", "idxal"]
+photos = [
+  "https://images.unsplash.com/photo-1678182451047-196f22a4143e",
+  "https://images.unsplash.com/photo-1578575437130-527eed3abbec",
+  "https://images.unsplash.com/photo-1595587637401-83ff822bd63e",
+]
+
+[[topic]]
+name = "Dəmir yolu"
+words = ["qatar", "dəmir yol", "ADY", "vaqon", "sərnişin qatar"]
+photos = [
+  "https://images.unsplash.com/photo-1580442374555-3def8fb41738",
+  "https://images.unsplash.com/photo-1582217900003-2b19c0e3a7d0",
+]
+
+[[topic]]
+name = "Nəqliyyat və yol"
+words = ["avtobus", "marşrut", "metro", "tıxac", "nəqliyyat", "sürücü", "trolleybus", "yol hərəkəti",
+         "hərəkəti məhdudlaşdırıl", "hərəkət məhdud", "avtomobil yolu", "küçə"]
+photos = [
+  "https://images.unsplash.com/photo-1632276536839-84cad7fd03b0",
+  "https://images.unsplash.com/photo-1641309664023-52a016965404",
+  "https://images.unsplash.com/photo-1564694202883-46e7448c1b26",
+]
+
+[[topic]]
+name = "Qar"
+words = ["qar yağ", "qarlı", "şaxta", "buz bağla"]
+photos = [
+  "https://images.unsplash.com/photo-1580306482521-e63b254f8f4b",
+  "https://images.unsplash.com/photo-1673982408289-00bc2245c408",
+]
+
+[[topic]]
+name = "Hava"
+words = ["hava proqnoz", "hava şərait", "havanın", "yağış", "leysan", "külək", "sinoptik", "temperatur",
+         "isti hava", "soyuq hava", "dolu yağ"]
+photos = [
+  "https://images.unsplash.com/photo-1519692933481-e162a57d6721",
+  "https://images.unsplash.com/photo-1468476396571-4d6f2a427ee7",
+  "https://images.unsplash.com/photo-1576514864427-f0809d2b66eb",
+]
+
+[[topic]]
+name = "Səhiyyə"
+words = ["səhiyyə", "xəstəxana", "həkim", "klinika", "xəstə", "tibb", "TƏBİB", "müayinə", "peyvənd"]
+photos = [
+  "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7",
+  "https://images.unsplash.com/photo-1538108149393-fbbd81895907",
+]
+
+[[topic]]
+name = "Təhsil"
+words = ["təhsil", "məktəb", "şagird", "müəllim", "universitet", "tələbə", "imtahan", "dərs", "DİM"]
+photos = [
+  "https://images.unsplash.com/photo-1580582932707-520aed937b7b",
+  "https://images.unsplash.com/photo-1635424239131-32dc44986b56",
+]
+
+[[topic]]
+name = "Kənd təsərrüfatı"
+words = ["kənd təsərrüfat", "aqrar", "taxıl", "fermer", "məhsul yığım", "tingçilik", "istixana", "pambıq"]
+photos = [
+  "https://images.unsplash.com/photo-1635174815612-fd9636f70146",
+  "https://images.unsplash.com/photo-1539851286640-d34f4d698024",
+]
+
+[[topic]]
+name = "Texnologiya"
+words = ["süni intellekt", "rəqəmsal", "texnologiya", "İKT", "internet", "kiber", "startap", "proqram təminat"]
+photos = [
+  "https://images.unsplash.com/photo-1677442135703-1787eea5ce01",
+  "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf",
+]
+
+[[topic]]
+name = "Qarabağ"
+words = ["Şuşa", "Qarabağ", "Laçın", "Kəlbəcər", "Cəbrayıl", "Füzuli rayon", "Füzulidə", "Füzuli şəhər",
+         "Ağdam", "Hadrut", "Zəngilan",
+         "Qubadlı", "Böyük Qayıdış", "azad edilmiş"]
+photos = [
+  "https://images.unsplash.com/photo-1716440518428-9831d9b9222c",
+  "https://images.unsplash.com/photo-1716440541992-f42c5b765e54",
+]
+
+[[topic]]
+name = "Parlament"
+words = ["Milli Məclis", "parlament", "deputat", "qanun layihə", "plenar"]
+photos = [
+  "https://images.unsplash.com/photo-1607778417094-1fef13315e6e",
+  "https://images.unsplash.com/photo-1607778102165-6a418ee9adf2",
+]
+
+[[topic]]
+name = "Diplomatiya"
+words = ["sammit", "görüş", "danışıq", "əməkdaşlıq", "səfir", "XİN", "BMT", "MDB", "TDT", "NATO",
+         "memorandum", "saziş", "nümayəndə heyəti", "səfər", "konfrans", "forum"]
+photos = [
+  "https://images.unsplash.com/photo-1697059361461-b81d0e98c3af",
+  "https://images.unsplash.com/photo-1740933084056-078fac872bff",
+  "https://images.unsplash.com/photo-1633095975779-fd354aa0dc95",
+]
+
+[[topic]]
+name = "Bakı"
+words = ["Bakı", "paytaxt"]
+photos = [
+  "https://images.unsplash.com/photo-1596306499300-0b7b1689b9f6",
+  "https://images.unsplash.com/photo-1596306499398-8d88944a5ec4",
+]

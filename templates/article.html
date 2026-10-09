@@ -20,7 +20,7 @@
   <h1 class="story-title">{{ it.title }}</h1>
   {% if it.img_large %}
   <figure class="story-figure">
-    <img src="{{ it.img_large if it.img_large.startswith('http') else root ~ it.img_large }}" alt="" width="1200" height="675" onerror="this.onerror=null;this.src='{{ root }}{{ it.img_fallback }}';var c=this.nextElementSibling;if(c)c.remove()">
+    <img src="{{ it.img_large if it.img_large.startswith('http') else root ~ it.img_large }}" alt="" width="1200" height="675" style="max-width:100%;height:auto" onerror="this.onerror=null;this.src='{{ root }}{{ it.img_fallback }}';var c=this.nextElementSibling;if(c)c.remove()">
     {% if it.img_credit %}<figcaption>İllüstrativ foto: {{ it.img_credit }}</figcaption>{% endif %}
   </figure>
   {% endif %}

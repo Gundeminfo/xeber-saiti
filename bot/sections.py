@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 
-from .text import to_ascii
+from .text import az_lower, to_ascii
 
 SECTIONS = [
     {"id": "siyaset", "name": "Siyasət", "color": "#1f5fbf"},
@@ -37,23 +37,24 @@ CATEGORY_MAP = [
 
 # Bölməsi olmayan xəbərlər üçün başlıqdakı söz kökləri (sıra vacibdir: ilk uyğunluq qalib gəlir)
 KEYWORDS = [
-    ("hadise", ["qeza", "yangin", "xesaret", "helak", "olen", "meyit", "mina", "partlay", "bicaq",
-                "cinayet", "hebs", "saxlanil", "ogurl", "itkin", "zelzele", "yarali", "olum", "toqqus"]),
-    ("idman", ["futbol", "matc", "liqa", "uefa", "fifa", "cempion", "cudo", "gules", "boks", "tennis",
-               "olimpiya", "yigma", "stadion", "turnir", "medal", "premyer", "kubok", "neftci", "idman",
-               "qarabag fk", "mundial", "basketbol", "voleybol", "boksc", "hentbol", "sahmat"]),
-    ("iqtisadiyyat", ["neft", "manat", "dollar", "qiymet", "budce", "bank", "birja", "ixrac", "idxal",
-                      "investisiya", "qizil", "bitcoin", "valyuta", "vergi", "inflyasiya", "iqtisad",
-                      "ticaret", "tebii qaz", "enerji", "istiqraz", "maas", "pensiya", "kredit"]),
-    ("cemiyyet", ["sehiyye", "klinika", "xestexana", "hekim", "tehsil", "mekteb", "universitet",
-                  "telebe", "sagird", "kitabxana", "muzey", "teatr", "festival", "konsert"]),
-    ("siyaset", ["prezident", "nazir", "parlament", "milli meclis", "sefir", "xin", "deputat", "sammit",
-                 "eliyev", "hokumet", "sulh", "danisiq", "mdb", "tdt", "partiya"]),
-    ("dunya", ["ukrayna", "rusiya", "iran", "abs", "tramp", "turkiye", "gurcustan", "israil", "qezza",
-               "cin", "ermenistan", "bmt", "nato", "fransa", "almaniya", "putin", "moskva", "kiyev",
-               "avropa", "pentaqon", "tehran", "sudan", "venesuela", "turkmen", "qazaxistan", "ozbekistan"]),
+    ("hadise", ["qəza", "yanğın", "xəsarət", "həlak", "ölən", "ölüb", "öldü", "meyit", "mina", "partlay",
+                "bıçaq", "cinayət", "həbs", "saxlanıl", "oğurla", "itkin", "zəlzələ", "yaralı", "ölüm",
+                "toqquş", "dələduz"]),
+    ("idman", ["futbol", "matç", "liqa", "uefa", "fifa", "çempion", "cüdo", "güləş", "boks", "tennis",
+               "olimpiya", "yığma", "stadion", "turnir", "medal", "premyer", "kubok", "neftçi", "idman",
+               "mundial", "basketbol", "voleybol", "həndbol", "şahmat"]),
+    ("iqtisadiyyat", ["neft", "manat", "dollar", "qiymət", "büdcə", "bank", "birja", "ixrac", "idxal",
+                      "investisiya", "qızıl", "bitcoin", "valyuta", "vergi", "inflyasiya", "iqtisad",
+                      "ticarət", "təbii qaz", "enerji", "istiqraz", "maaş", "pensiya", "kredit", "ədv"]),
+    ("cemiyyet", ["səhiyyə", "klinika", "xəstəxana", "həkim", "təhsil", "məktəb", "universitet",
+                  "tələbə", "şagird", "kitabxana", "muzey", "teatr", "festival", "konsert"]),
+    ("siyaset", ["prezident", "dövlət başçısı", "nazir", "parlament", "milli məclis", "səfir", "xin",
+                 "deputat", "sammit", "əliyev", "hökumət", "sülh", "danışıq", "mdb", "tdt", "partiya"]),
+    ("dunya", ["ukrayna", "rusiya", "iran", "abş", "tramp", "türkiyə", "gürcüstan", "israil", "qəzza",
+               "çin", "ermənistan", "bmt", "nato", "fransa", "almaniya", "putin", "moskva", "kiyev",
+               "avropa", "pentaqon", "tehran", "sudan", "venesuela", "türkmən", "qazaxıstan", "özbəkistan"]),
 ]
-_KW_RE = [(sec, re.compile(r"\b(?:" + "|".join(re.escape(w) for w in words) + r")"))
+_KW_RE = [(sec, re.compile(r"(?<!\w)(?:" + "|".join(re.escape(w) for w in words) + r")"))
           for sec, words in KEYWORDS]
 
 
@@ -63,7 +64,7 @@ def classify(category: str, title: str) -> str:
         for needle, sec in CATEGORY_MAP:
             if needle in cat:
                 return sec
-    text = to_ascii(title or "")
+    text = az_lower(title or "")
     for sec, rx in _KW_RE:
         if rx.search(text):
             return sec
