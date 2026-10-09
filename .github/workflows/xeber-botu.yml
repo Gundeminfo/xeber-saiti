@@ -1,1 +1,166 @@
+name: Xəbər botu
 
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      yoxla:
+        description: "Yalnız açarları yoxla (heç nə paylaşma)"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths-ignore: ["README.md"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: xeber-botu
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  collect:
+    name: Xəbərləri topla, saytı qur
+    if: ${{ !inputs.yoxla }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      site_url: ${{ steps.pages.outputs.base_url }}
+      pages_ok: ${{ steps.pages.outcome == 'success' }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Arxivi aç (yalnız ilk dəfə)
+        if: ${{ hashFiles('*.zip') != '' }}
+        run: |
+          z="$(ls *.zip | head -1)"
+          tmp="$(mktemp -d)"
+          unzip -q "$z" -d "$tmp"
+          src="$tmp"; [ -d "$tmp/xeber-saiti" ] && src="$tmp/xeber-saiti"
+          rm -rf "$src/.github"
+          cp -r "$src"/. .
+          git rm -q "$z"
+          git add -A
+          git -c user.name="xeber-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Layihə faylları arxivdən çıxarıldı"
+          git push -q origin "HEAD:${GITHUB_REF_NAME}"
+          echo "Arxiv açıldı: $(ls | tr '\n' ' ')"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: GitHub Pages ünvanını öyrən
+        id: pages
+        continue-on-error: true
+        uses: actions/configure-pages@v6
+      - name: Əvvəlki məlumatları bərpa et
+        run: bash scripts/data.sh restore
+      - name: Xəbərləri topla
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: ${{ secrets.TELEGRAM_CHANNEL }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+        run: python -m bot.run collect
+      - name: Məlumatları saxla
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash scripts/data.sh save
+      - name: Pages aktiv deyil
+        if: ${{ steps.pages.outcome != 'success' }}
+        run: echo "::warning::GitHub Pages aktiv deyil. Settings → Pages → Source → GitHub Actions seçin."
+      - uses: actions/upload-pages-artifact@v5
+        if: ${{ steps.pages.outcome == 'success' }}
+        with:
+          path: _site
+
+  deploy:
+    name: Saytı yayımla
+    needs: collect
+    if: ${{ needs.collect.outputs.pages_ok == 'true' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  publish:
+    name: Telegram və sosial şəbəkələrdə paylaş
+    needs: [collect, deploy]
+    if: ${{ !cancelled() && needs.collect.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Son məlumatları götür
+        run: bash scripts/data.sh restore
+      - name: Paylaş
+        env:
+          SITE_URL: ${{ needs.collect.outputs.site_url }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: ${{ secrets.TELEGRAM_CHANNEL }}
+          TELEGRAM_ADMIN_CHAT: ${{ secrets.TELEGRAM_ADMIN_CHAT }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
+        run: python -m bot.run publish
+      - name: Məlumatları saxla
+        if: ${{ !cancelled() }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash scripts/data.sh save
+
+  check:
+    name: Açarları yoxla
+    if: ${{ inputs.yoxla }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: GitHub Pages ünvanını öyrən
+        id: pages
+        continue-on-error: true
+        uses: actions/configure-pages@v6
+      - name: Məlumatları götür
+        run: bash scripts/data.sh restore
+      - name: Yoxla
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: ${{ secrets.TELEGRAM_CHANNEL }}
+          TELEGRAM_ADMIN_CHAT: ${{ secrets.TELEGRAM_ADMIN_CHAT }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
+        run: python -m bot.check
+      - name: Pages yoxlaması
+        if: ${{ steps.pages.outcome == 'failure' }}
+        run: |
+          echo "❌ GitHub Pages aktiv deyil: Settings → Pages → Source → GitHub Actions seçin."
+          exit 1
