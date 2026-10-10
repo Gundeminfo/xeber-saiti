@@ -13,9 +13,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from urllib.parse import urlsplit
 
-from .cards import render_card, render_cover, render_site_card
+from .cards import render_card, render_cover, render_site_card, render_story
 from .config import AD_SLOTS, Config
-from .photos import PhotoPicker
 from .sections import SECTIONS, classify, section
 from .summarize import scrub_sources
 from .text import fmt_datetime, fmt_day, fmt_time, parse_iso, to_ascii, tz
@@ -33,20 +32,13 @@ def _env(root: Path) -> Environment:
     return env
 
 
-def _photo(url: str, w: int, h: int) -> str:
-    """Unsplash fotoları üçün lazımi ölçünü URL-ə əlavə edir."""
-    if "images.unsplash.com" in url:
-        return f"{url.split('?')[0]}?w={w}&h={h}&fit=crop&q=70&auto=format"
-    return url
-
-
 def _prepare(cfg: Config, items: list[dict], zone) -> list[dict]:
     show = cfg.show_sources
     names = cfg.source_names()
-    mode = str(cfg.images.get("mode", "topic")).lower()
-    picker = PhotoPicker(cfg.root_dir / "sekiller.toml") if mode == "topic" else None
+    mode = str(cfg.images.get("mode", "kart")).lower()
+    max_cards = int(cfg.images.get("max_cards", 600))
     out = []
-    for it in items:
+    for n, it in enumerate(items):
         dt = parse_iso(it["published"])
         src = cfg.source(it["source"])
         sec = section(classify(it.get("category", ""), it["title"]))
@@ -55,13 +47,14 @@ def _prepare(cfg: Config, items: list[dict], zone) -> list[dict]:
             body = scrub_sources(body, names)
         cover = f"static/cover/{sec['id']}.jpg"
         thumb_cover = f"static/cover/{sec['id']}-kicik.jpg"
-        photo = picker.pick(it["title"], it["id"])[0] if picker else ""
-        if mode == "cover":
-            thumb, large = thumb_cover, cover
-        elif photo:
-            thumb, large = _photo(photo, 320, 200), _photo(photo, 1200, 675)
-        else:
+        # Xəbərin öz kartı (başlıqla) — yalnız ən təzə max_cards xəbər üçün
+        story = f"sekil/{it['id']}.jpg" if n < max_cards else ""
+        if mode == "off":
             thumb = large = ""
+        elif mode == "cover":
+            thumb, large = thumb_cover, cover
+        else:
+            thumb, large = thumb_cover, story or cover
         src_name = src.name if src else it["source"]
         src_color = src.color if src else "#5b6b78"
         out.append({
@@ -85,7 +78,7 @@ def _prepare(cfg: Config, items: list[dict], zone) -> list[dict]:
             "img_fallback_thumb": thumb_cover,
             "img_large": large,
             "img_fallback": cover,
-            "img_credit": "Unsplash" if "unsplash.com" in photo else "",
+            "img_story": story,
         })
     return out
 
@@ -177,9 +170,15 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
     cards_dir = out / "kart"
     render_site_card(cfg.site["name"], cfg.site["tagline"], out / "static" / "og.jpg")
     for sec in SECTIONS:
-        render_cover(sec["name"], sec["color"], cfg.site["name"], out / "static" / "cover" / f"{sec['id']}.jpg")
         render_cover(sec["name"], sec["color"], cfg.site["name"],
-                     out / "static" / "cover" / f"{sec['id']}-kicik.jpg", small=True)
+                     out / "static" / "cover" / f"{sec['id']}.jpg", kind=sec["id"])
+        render_cover(sec["name"], sec["color"], cfg.site["name"],
+                     out / "static" / "cover" / f"{sec['id']}-kicik.jpg", small=True, kind=sec["id"])
+    # Hər xəbərin öz kartı: saytdakı şəkil və paylaşım önizləməsi (og:image)
+    for it in items:
+        if it["img_story"]:
+            render_story(it["title"], it["sec_name"], it["sec_color"], it["section"],
+                         it["when"], cfg.site["name"], out / it["img_story"])
     card_ids: set[str] = set()
     cutoff = updated - timedelta(hours=48)
     for it in items:
@@ -221,14 +220,8 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
         related = [x for x in items[max(0, idx - 60): idx + 60]
                    if x[key] == it[key] and x["id"] != it["id"]][:3]
         latest = [x for x in items[:12] if x["id"] != it["id"] and x not in related][:5]
-        if it["id"] in card_ids:
-            og_image = f"{site_url}/kart/{it['id']}.jpg"
-        elif it["img_large"].startswith("http"):
-            og_image = it["img_large"]
-        elif it["img_large"]:
-            og_image = f"{site_url}/{it['img_large']}"
-        else:
-            og_image = f"{site_url}/static/og.jpg"
+        # Paylaşım önizləməsi həmişə xəbərin öz kartıdır (başlıq yazılmış şəkil)
+        og_image = f"{site_url}/{it['img_story'] or it['img_fallback']}"
         html = tpl_article.render(**common, root="../", it=it, related=related, latest=latest,
                                   og_image=og_image, nav=it["section"],
                                   canonical=f"{site_url}/{it['path']}")
@@ -267,7 +260,8 @@ def build_site(cfg: Config, items: list[dict], out_dir: Path, updated: datetime)
         _write(out / "sitemap.xml", _sitemap(site_url, items[:1000], sections))
         _write(out / "robots.txt", f"User-agent: *\nAllow: /\nSitemap: {site_url}/sitemap.xml\n")
 
-    log.info("Sayt quruldu: %s xəbər, %s səhifə, %s şəkil-kart", len(items), pages, len(card_ids))
+    log.info("Sayt quruldu: %s xəbər, %s səhifə, %s xəbər kartı, %s sosial kart",
+             len(items), pages, sum(1 for x in items if x["img_story"]), len(card_ids))
     return len(items)
 
 

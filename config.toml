@@ -135,13 +135,15 @@ timeout_seconds = 15
 delay_seconds = 0.5
 
 # ─── Şəkillər ────────────────────────────────────────────────────────
-# Mənbə saytların fotoları istifadə olunmur (onlara icazə yoxdur).
-# mode = "topic" — başlıqdakı mövzuya uyğun pulsuz foto (siyahı sekiller.toml faylındadır).
-#                  Uyğun mövzu tapılmasa, xəbər şəkilsiz qalır.
-# mode = "cover" — hər xəbərdə bölmənin rəngli örtüyü
-# mode = "off"   — şəkilsiz
+# Başqa saytların fotoları istifadə olunmur (icazə yoxdur, xəbərə uyğun gəlməyə bilər).
+# mode = "kart"  — hər xəbərin öz kartı: bölmə + başlıq + tarix. Siyahıda bölmə nişanı.
+#                  Telegram/Facebook/WhatsApp önizləməsində də bu kart görünür.
+# mode = "cover" — yalnız bölmə nişanları (kart yenə də paylaşım önizləməsində işlənir)
+# mode = "off"   — saytda şəkil yoxdur (kart yenə də paylaşım önizləməsində işlənir)
+# max_cards — neçə ən təzə xəbər üçün kart yaradılsın (köhnələrdə bölmə örtüyü)
 [images]
-mode = "topic"
+mode = "kart"
+max_cards = 600
 
 # ─── Xəbər mənbələri ─────────────────────────────────────────────────
 # Yeni mənbə əlavə etmək üçün aşağıdakı bloku kopyalayın və RSS ünvanını yazın.

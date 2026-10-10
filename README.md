@@ -126,7 +126,7 @@ Bütün ayarlar `config.toml` faylındadır. GitHub-da faylı açıb qələm iş
 | Mənbə saytda qalsın, amma paylaşılmasın | həmin mənbəyə `social = false` |
 | Mənbəni söndürmək | həmin mənbəyə `enabled = false` |
 | Mənbə adlarını göstərmək/gizlətmək | `[site]` → `show_sources = true / false` |
-| Fotoları və mövzuları dəyişmək | `sekiller.toml` faylı (aşağıda "Şəkillər") |
+| Şəkillərin növü | `[images]` → `mode` (aşağıda "Şəkillər") |
 | Reklam əlavə etmək | aşağıdakı "Reklam yerləri" bölməsinə baxın |
 
 ---
@@ -137,15 +137,13 @@ Bütün ayarlar `config.toml` faylındadır. GitHub-da faylı açıb qələm iş
 
 **Söndürülmüş mənbələr.** Trend reklamlı saytlarda istifadəni qadağan edir və gündə ən çox 10 xəbərə icazə verir. Qafqazinfo isə istifadə qaydası yazmayıb. Ona görə hər ikisi söndürülüb. İcazə alsanız, `config.toml`-da `enabled = true` edin.
 
-**Şəkillər.** Mənbə saytların fotoları götürülmür, çünki heç biri fotolardan istifadəyə icazə vermir. Bot şəkli başlığın mövzusuna görə seçir: elektrik, liman, futbol, valyuta, hava, yol, məktəb və s. Fotolar Unsplash-dandır: pulsuz və kommersiya istifadəsinə icazə verilir. Altında "İllüstrativ foto" yazılır.
+**Şəkillər.** Başqa saytların fotoları götürülmür: heç bir mənbə fotolardan istifadəyə icazə vermir, mövzuya görə seçilən stok fotolar isə çox vaxt xəbərə uyğun gəlmir. Bunun əvəzinə bot hər xəbər üçün öz kartını çəkir: bölmənin rəngi, bölmənin adı, xəbərin başlığı və tarixi. Kart başlığın özündən yarandığı üçün həmişə xəbərə uyğundur.
 
-Uyğun mövzu tapılmasa, xəbər şəkilsiz qalır. Ölüm, partlayış, müharibə kimi faciəli xəbərlərə qəsdən şəkil qoyulmur.
+Bu kart xəbər səhifəsində görünür və link Telegram, Facebook, WhatsApp-da paylaşılanda önizləmə şəkli olur. Siyahıda isə hər xəbərin yanında bölmənin nişanı var (bina, qrafik, insanlar, qlobus, kubok, xəbərdarlıq işarəsi).
 
-Mövzuları və fotoları `sekiller.toml` faylında dəyişə bilərsiniz:
-- `words` — başlıqda axtarılan sözlər;
-- `photos` — fotolar. Öz fotonuzu `static/sekiller/` qovluğuna yükləyib `"static/sekiller/ad.jpg"` kimi yazın.
+`config.toml`-da `[images]` → `mode = "cover"` yazsanız saytda yalnız bölmə nişanları, `mode = "off"` yazsanız şəkilsiz olur. Paylaşım önizləməsi hər halda kart olaraq qalır.
 
-Bütün xəbərlərdə bölmənin rəngli örtüyünü görmək istəsəniz, `config.toml`-da `[images]` → `mode = "cover"` yazın.
+Əvvəllər paylaşılmış linklərin köhnə önizləməsini Telegram və Facebook yadda saxlayır. Telegram-da yeniləmək üçün @WebpageBot-a həmin linki göndərin. Facebook-da bunu "Sharing Debugger" səhifəsində "Scrape Again" ilə edin.
 
 ---
 
@@ -230,7 +228,7 @@ bot/publish.py           nəyin harada paylaşılacağını seçmək və paylaş
 bot/telegram.py          Telegram
 bot/social.py            Facebook, Instagram, Threads (Meta API)
 bot/tokens.py            Threads tokeninin avtomatik uzadılması
-bot/cards.py             Instagram şəkil-kartları
+bot/cards.py             xəbər kartları, bölmə nişanları, Instagram kartları
 bot/build.py             statik sayt
 bot/check.py             açarların yoxlanması
 templates/, static/      saytın dizaynı (static/reklam/ — bannerlər üçün)

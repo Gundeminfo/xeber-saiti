@@ -23,7 +23,8 @@ DEFAULTS = {
         "show_sources": True,
     },
     "images": {
-        "mode": "topic",
+        "mode": "kart",
+        "max_cards": 600,
     },
     "publish": {
         "max_age_hours": 3,
